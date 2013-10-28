@@ -96,8 +96,10 @@ module ShopifyTheme
     method_option :quiet, :type => :boolean, :default => false
     method_option :keep_files, :type => :boolean, :default => false
     def watch
-      puts "Watching current folder: #{Dir.pwd}"
+      say("Connected to home tree", :green)
+      say("Watching site...")
       Listen.to!(Dir.pwd, :relative_paths => true) do |modified, added, removed|
+        say("Change detected! Syncing...")
         modified.each do |filePath|
           send_asset(filePath, options['quiet']) if local_assets_list.include?(filePath)
         end
