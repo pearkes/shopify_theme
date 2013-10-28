@@ -70,20 +70,17 @@ module ShopifyTheme
     desc "replace FILE", "completely replace shop theme assets with local theme assets"
     method_option :quiet, :type => :boolean, :default => false
     def replace(*keys)
-      say("Are you sure you want to completely replace your shop theme assets? This is not undoable.", :yellow)
-      if ask("Continue? (Y/N): ") == "Y"
-        # only delete files on remote that are not present locally
-        # files present on remote and present locally get overridden anyway
-        remote_assets = keys.empty? ? (ShopifyTheme.asset_list - local_assets_list) : keys
-        remote_assets.each do |asset|
-          delete_asset(asset, options['quiet'])
-        end
-        local_assets = keys.empty? ? local_assets_list : keys
-        local_assets.each do |asset|
-          send_asset(asset, options['quiet'])
-        end
-        say("Done.", :green) unless options['quiet']
+      # only delete files on remote that are not present locally
+      # files present on remote and present locally get overridden anyway
+      remote_assets = keys.empty? ? (ShopifyTheme.asset_list - local_assets_list) : keys
+      remote_assets.each do |asset|
+        delete_asset(asset, options['quiet'])
       end
+      local_assets = keys.empty? ? local_assets_list : keys
+      local_assets.each do |asset|
+        send_asset(asset, options['quiet'])
+      end
+      say("Done.", :green) unless options['quiet']
     end
 
     desc "remove FILE", "remove theme asset"
