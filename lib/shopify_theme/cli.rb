@@ -8,6 +8,7 @@ require 'json'
 require 'listen'
 require 'launchy'
 require 'less'
+require 'uglifier'
 
 module ShopifyTheme
   class Cli < Thor
@@ -99,31 +100,40 @@ module ShopifyTheme
     def watch
       say("Connected to home tree", :green)
       say("Watching site...")
+
       Listen.to!(Dir.pwd, :relative_paths => true) do |modified, added, removed|
-        say("Change detected! Syncing...")
         modified.each do |filePath|
-          # Compile JS!
+          next if filePath == "assets/application.min.js"
+          say("Change detected! Syncing...")
+
+          # Special-case the JS
           if filePath.include?('js/')
-            File.open("assets/application.min.js", "w") do |file|
-              compiled = ""
-              Dir.entries("js").each do |js_file|
-                compiled << File.read("js_file")
+            # Clear out the application.min file
+            File.open("assets/application.min.js", "w") {|file| file.truncate(0) }
+
+            Dir.entries("js/").each do |js_file|
+              next if !js_file.include?(".js")
+              File.open("assets/application.min.js", "a") do |f|
+                f << Uglifier.compile(File.read("js/#{js_file}"))
               end
-              Uglifier.compile(compiled)
             end
+
             send_asset("assets/application.min.js", options['quiet'])
           end
 
           if local_assets_list.include?(filePath)
             send_asset(filePath, options['quiet'])
           end
-
         end
+
         added.each do |filePath|
+          say("Change detected! Syncing...")
           send_asset(filePath, options['quiet']) if local_assets_list.include?(filePath)
         end
+
         if !options['keep_files']
           removed.each do |filePath|
+            say("Change detected! Syncing...")
             delete_asset(filePath, options['quiet']) if local_assets_list.include?(relative)
           end
         end
