@@ -104,6 +104,8 @@ module ShopifyTheme
       Listen.to!(Dir.pwd, :relative_paths => true) do |modified, added, removed|
         modified.each do |filePath|
           next if filePath == "assets/application.min.js"
+          next if filePath == "assets/application.min.css.liquid"
+
           say("Change detected! Syncing...")
 
           # Special-case the JS
@@ -121,6 +123,20 @@ module ShopifyTheme
             send_asset("assets/application.min.js", options['quiet'])
           end
 
+          # Special-case the less
+          if filePath.include?('less/')
+            success = false
+            parser = Less::Parser.new
+
+            File.open("assets/application.min.css.liquid", "w") do |f|
+              compile = parser.parse(File.read("less/base.less"))
+              f << compile.to_css(:compress => true)
+              success = true
+            end
+
+            send_asset("assets/application.min.css.liquid", options['quiet']) if success
+          end
+
           if local_assets_list.include?(filePath)
             send_asset(filePath, options['quiet'])
           end
@@ -134,7 +150,7 @@ module ShopifyTheme
         if !options['keep_files']
           removed.each do |filePath|
             say("Change detected! Syncing...")
-            delete_asset(filePath, options['quiet']) if local_assets_list.include?(relative)
+            delete_asset(filePath, options['quiet']) if local_assets_list.include?(filePath)
           end
         end
       end
