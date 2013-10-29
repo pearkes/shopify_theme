@@ -7,6 +7,7 @@ require 'fileutils'
 require 'json'
 require 'listen'
 require 'launchy'
+require 'less'
 
 module ShopifyTheme
   class Cli < Thor
@@ -101,7 +102,22 @@ module ShopifyTheme
       Listen.to!(Dir.pwd, :relative_paths => true) do |modified, added, removed|
         say("Change detected! Syncing...")
         modified.each do |filePath|
-          send_asset(filePath, options['quiet']) if local_assets_list.include?(filePath)
+          # Compile JS!
+          if filePath.include?('js/')
+            File.open("assets/application.min.js", "w") do |file|
+              compiled = ""
+              Dir.entries("js").each do |js_file|
+                compiled << File.read("js_file")
+              end
+              Uglifier.compile(compiled)
+            end
+            send_asset("assets/application.min.js", options['quiet'])
+          end
+
+          if local_assets_list.include?(filePath)
+            send_asset(filePath, options['quiet'])
+          end
+
         end
         added.each do |filePath|
           send_asset(filePath, options['quiet']) if local_assets_list.include?(filePath)

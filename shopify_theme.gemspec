@@ -18,6 +18,8 @@ Gem::Specification.new do |s|
   s.add_dependency("json", "~> 1.5.4")
   s.add_dependency("listen", "~>1.0")
   s.add_dependency("launchy")
+  s.add_dependency("less")
+  s.add_dependency("uglifier")
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'minitest', '>= 5.0.0'
