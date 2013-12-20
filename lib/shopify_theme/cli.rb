@@ -135,13 +135,17 @@ module ShopifyTheme
               success = true
             end
 
+            send_asset("assets/application.min.css.liquid", options['quiet']) if success
+
+            success = false
+            parser = Less::Parser.new
+
             File.open("assets/checkout.css.liquid", "w") do |f|
               compile = parser.parse(File.read("less/checkout.less"))
               f << compile.to_css(:compress => true)
               success = true
             end
 
-            send_asset("assets/application.min.css.liquid", options['quiet']) if success
             send_asset("assets/checkout.css.liquid", options['quiet']) if success
           end
 
