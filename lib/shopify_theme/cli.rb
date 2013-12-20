@@ -105,6 +105,7 @@ module ShopifyTheme
         modified.each do |filePath|
           next if filePath == "assets/application.min.js"
           next if filePath == "assets/application.min.css.liquid"
+          next if filePath == "assets/checkout.css.liquid"
 
           say("Change detected! Syncing...")
 
@@ -134,7 +135,14 @@ module ShopifyTheme
               success = true
             end
 
+            File.open("assets/checkout.css.liquid", "w") do |f|
+              compile = parser.parse(File.read("less/checkout.less"))
+              f << compile.to_css(:compress => true)
+              success = true
+            end
+
             send_asset("assets/application.min.css.liquid", options['quiet']) if success
+            send_asset("assets/checkout.css.liquid", options['quiet']) if success
           end
 
           if local_assets_list.include?(filePath)
