@@ -27,11 +27,15 @@ module ShopifyTheme
     shopify.delete(path, :body =>{:asset => {:key => asset}})
   end
 
+  def self.env
+    ENV["ENVIRONMENT"] || "staging"
+  end
+
   def self.config
     @config ||= if File.exist? 'config.yml'
       config = YAML.load(File.read('config.yml'))
-      puts ":ignore_files: is deprecated for a white list, use :whitelist_files: instead" if config[:ignore_files]
-      config
+      puts "Loading #{env} configuration"
+      config[env.to_sym]
     else
       puts "config.yml does not exist!"
       {}
@@ -65,7 +69,7 @@ module ShopifyTheme
   private
   def self.shopify
     basic_auth config[:api_key], config[:password]
-    base_uri "https://#{config[:store]}"
+    base_uri "https://#{config[:store]}.myshopify.com/"
     ShopifyTheme
   end
 end

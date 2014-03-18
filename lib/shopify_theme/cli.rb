@@ -32,12 +32,6 @@ module ShopifyTheme
       end
     end
 
-    desc "configure API_KEY PASSWORD STORE THEME_ID", "generate a config file for the store to connect to"
-    def configure(api_key=nil, password=nil, store=nil, theme_id=nil)
-      config = {:api_key => api_key, :password => password, :store => store, :theme_id => theme_id}
-      create_file('config.yml', config.to_yaml)
-    end
-
     desc "download FILE", "download the shops current theme assets"
     method_option :quiet, :type => :boolean, :default => false
     def download(*keys)
@@ -48,15 +42,6 @@ module ShopifyTheme
         say("Downloaded: #{asset}", :green) unless options['quiet']
       end
       say("Done.", :green) unless options['quiet']
-    end
-
-    desc "open", "open the store in your browser"
-    def open(*keys)
-      config = YAML.load_file 'config.yml'
-      url = config[:store]
-      if Launchy.open url
-        say("Done.", :green)
-      end
     end
 
     desc "upload FILE", "upload all theme assets to shop"
@@ -98,6 +83,7 @@ module ShopifyTheme
     method_option :quiet, :type => :boolean, :default => false
     method_option :keep_files, :type => :boolean, :default => false
     def watch
+      ShopifyTheme.check_config
       say("Connected to home tree", :green)
       say("Watching site...")
 
