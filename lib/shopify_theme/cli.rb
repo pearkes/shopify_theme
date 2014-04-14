@@ -14,7 +14,7 @@ module ShopifyTheme
   class Cli < Thor
     include Thor::Actions
 
-    BINARY_EXTENSIONS = %w(png gif jpg jpeg eot svg ttf woff otf swf ico)
+    BINARY_EXTENSIONS = %w(png gif jpg jpeg eot svg ttf woff otf swf ico mp4)
     IGNORE = %w(config.yml)
     DEFAULT_WHITELIST = %w(layout/ assets/ config/ snippets/ templates/)
     TIMEFORMAT = "%H:%M:%S"
